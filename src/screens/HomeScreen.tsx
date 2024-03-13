@@ -23,51 +23,17 @@ const HomeScreen: React.FC = () => {
   const dispatch = useAppDispatch();
 
   const [favorites, setFavorites] = useState<Character[]>([]);
-  const [totals, setTotals] = useState<{
-    male: number;
-    female: number;
-    other: number;
-  }>({male: 0, female: 0, other: 0});
 
   useEffect(() => {
     dispatch(fetchCharacters(page));
   }, [dispatch, page]);
 
   const addToFavorites = (character: Character) => {
-    setFavorites([...favorites, character]);
-    updateTotals(character.gender);
+    setFavorites(prevState => [...prevState, character]);
   };
 
   const removeFromFavorites = (character: Character) => {
-    setFavorites(favorites.filter(fav => fav !== character));
-    updateTotals(character.gender, true);
-  };
-
-  const updateTotals = (
-    gender: 'male' | 'female' | 'other',
-    remove = false,
-  ) => {
-    setTotals(prevTotals => {
-      let updatedTotals = {...prevTotals};
-      if (remove) {
-        if (gender === 'male') {
-          updatedTotals.male -= 1;
-        } else if (gender === 'female') {
-          updatedTotals.female -= 1;
-        } else {
-          updatedTotals.other -= 1;
-        }
-      } else {
-        if (gender === 'male') {
-          updatedTotals.male += 1;
-        } else if (gender === 'female') {
-          updatedTotals.female += 1;
-        } else {
-          updatedTotals.other += 1;
-        }
-      }
-      return updatedTotals;
-    });
+    setFavorites(prevState => prevState.filter(fav => fav !== character));
   };
 
   const resetStatistics = () => {
@@ -77,6 +43,20 @@ const HomeScreen: React.FC = () => {
   const handleLoadMore = () => {
     dispatch(setPage(page + 1));
   };
+
+  const genderTotals = favorites.reduce(
+    (totals, character) => {
+      if (character.gender === 'male') {
+        totals.male++;
+      } else if (character.gender === 'female') {
+        totals.female++;
+      } else {
+        totals.other++;
+      }
+      return totals;
+    },
+    {male: 0, female: 0, other: 0},
+  );
 
   if (status === 'loading' && !characters.length) {
     return (
@@ -107,7 +87,8 @@ const HomeScreen: React.FC = () => {
           <Text style={styles.resetButton}>Reset</Text>
         </TouchableOpacity>
         <Text style={styles.totals}>
-          Male: {totals.male}, Female: {totals.female}, Other: {totals.other}
+          Male: {genderTotals.male}, Female: {genderTotals.female}, Other:{' '}
+          {genderTotals.other}
         </Text>
       </View>
     </SafeAreaView>
@@ -115,7 +96,10 @@ const HomeScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: '#fff'},
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -125,10 +109,24 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#ccc',
   },
-  resetButton: {fontSize: 18, fontWeight: 'bold', color: 'blue'},
-  totals: {fontSize: 16, marginRight: 20},
-  loadingContainer: {justifyContent: 'center', alignItems: 'center'},
-  errorContainer: {flex: 1, justifyContent: 'center', alignItems: 'center'},
+  resetButton: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: 'blue',
+  },
+  totals: {
+    fontSize: 16,
+    marginRight: 20,
+  },
+  loadingContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
 
 export default HomeScreen;

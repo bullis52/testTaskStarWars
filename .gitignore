@@ -1,2 +1,5 @@
 /ios/Pods/
 /node_modules/
+/shelf/
+/workspace.xml
+/httpRequests/

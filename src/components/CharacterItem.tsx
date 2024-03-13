@@ -49,7 +49,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
   },
-  characterItem: {fontSize: 18},
+  characterItem: {
+    fontSize: 18,
+  },
 });
 
 export default CharacterItem;
